@@ -1,0 +1,58 @@
+# Core
+fastapi==0.109.0
+uvicorn[standard]==0.25.0
+gunicorn==21.2.0
+python-multipart==0.0.6
+
+# Database
+sqlmodel==0.0.14
+alembic==1.13.1
+asyncpg==0.29.0
+psycopg2-binary==2.9.9
+
+# Authentication & Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+pydantic-settings==2.1.0
+
+# Redis
+redis==5.0.1
+hiredis==2.3.2
+
+# HTTP Client
+httpx==0.25.2
+aiohttp==3.9.1
+
+# AI/ML
+openai==1.6.1
+tiktoken==0.5.2
+
+# Voice/Audio
+twilio==8.11.0
+pydub==0.25.1
+scipy==1.11.4
+numpy==1.26.2
+
+# Vector Database
+weaviate-client==4.4.1
+
+# Monitoring
+prometheus-fastapi-instrumentator==6.1.0
+sentry-sdk[fastapi]==1.39.1
+
+# Logging
+structlog==24.1.0
+
+# Utils
+python-dotenv==1.0.0
+pyyaml==6.0.1
+orjson==3.9.10
+email-validator==2.1.0
+
+# Development
+pytest==7.4.3
+pytest-asyncio==0.23.2
+pytest-cov==4.1.0
+httpx==0.25.2
+factory-boy==3.3.0
+faker==21.0.0
