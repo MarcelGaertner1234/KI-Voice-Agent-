@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Diskussionen
+    url: https://github.com/MarcelGaertner1234/KI-Voice-Agent-/discussions
+    about: Allgemeine Fragen und Diskussionen
+  - name: 📚 Dokumentation
+    url: https://github.com/MarcelGaertner1234/KI-Voice-Agent-/wiki
+    about: Schauen Sie in unsere Dokumentation
+  - name: 🔐 Sicherheitsprobleme
+    url: mailto:security@vocaliq.ai
+    about: Bitte melden Sie Sicherheitsprobleme vertraulich per E-Mail

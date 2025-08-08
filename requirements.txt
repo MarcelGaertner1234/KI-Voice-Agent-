@@ -1,0 +1,90 @@
+# VocalIQ Backend Requirements
+
+# Core Framework
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+gunicorn==21.2.0
+
+# Database
+sqlmodel==0.0.14
+alembic==1.13.1
+psycopg2-binary==2.9.9
+asyncpg==0.29.0
+
+# Authentication & Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+email-validator==2.1.0
+
+# Redis
+redis==5.0.1
+
+# API Clients
+httpx==0.25.2
+twilio==8.11.0
+openai==1.6.1
+elevenlabs==0.2.27
+
+# Audio Processing
+pydub==0.25.1
+numpy==1.26.3
+scipy==1.11.4
+webrtcvad==2.0.10
+
+# Vector Database
+weaviate-client==4.4.1
+
+# Google Services
+google-api-python-client==2.111.0
+google-auth==2.25.2
+google-auth-oauthlib==1.2.0
+google-auth-httplib2==0.1.1
+
+# Email
+python-emails==0.6
+
+# Monitoring & Logging
+prometheus-client==0.19.0
+python-json-logger==2.0.7
+sentry-sdk[fastapi]==1.39.1
+
+# Utilities
+python-dotenv==1.0.0
+pydantic[email]==2.5.3
+pydantic-settings==2.1.0
+pendulum==3.0.0
+python-dateutil==2.8.2
+
+# Async Support
+aiofiles==23.2.1
+aiocache==0.12.2
+asyncio==3.4.3
+
+# Data Processing
+pandas==2.1.4
+pyarrow==14.0.2
+
+# Testing (also in requirements-dev.txt)
+pytest==7.4.4
+pytest-asyncio==0.23.3
+pytest-cov==4.1.0
+
+# Background Tasks
+celery==5.3.4
+flower==2.0.1
+
+# Validation & Serialization
+marshmallow==3.20.1
+orjson==3.9.10
+
+# Rate Limiting
+slowapi==0.1.9
+
+# Websockets
+websockets==12.0
+python-socketio==5.10.0
+
+# Development tools (move to requirements-dev.txt in production)
+ipython==8.19.0
+rich==13.7.0

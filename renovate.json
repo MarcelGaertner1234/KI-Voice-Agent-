@@ -1,0 +1,86 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base",
+    ":semanticCommits",
+    ":preserveSemverRanges"
+  ],
+  "timezone": "Europe/Berlin",
+  "schedule": ["before 3am on Monday"],
+  "labels": ["dependencies", "renovate"],
+  "assignees": ["MarcelGaertner1234"],
+  "reviewers": ["MarcelGaertner1234"],
+  "packageRules": [
+    {
+      "description": "Automatically merge minor and patch updates",
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "description": "Require approval for major updates",
+      "matchUpdateTypes": ["major"],
+      "automerge": false
+    },
+    {
+      "description": "Group Python dependencies",
+      "matchLanguages": ["python"],
+      "groupName": "Python dependencies",
+      "groupSlug": "python"
+    },
+    {
+      "description": "Group JavaScript dependencies",
+      "matchLanguages": ["js", "node"],
+      "groupName": "JavaScript dependencies",
+      "groupSlug": "javascript"
+    },
+    {
+      "description": "Security updates",
+      "matchDatasources": ["npm", "pypi"],
+      "matchUpdateTypes": ["patch"],
+      "matchCategories": ["security"],
+      "automerge": true,
+      "minimumReleaseAge": "0 days",
+      "schedule": ["at any time"],
+      "prPriority": 10
+    }
+  ],
+  "python": {
+    "enabled": true
+  },
+  "npm": {
+    "enabled": true,
+    "packageRules": [
+      {
+        "matchDepTypes": ["devDependencies"],
+        "automerge": true
+      }
+    ]
+  },
+  "docker": {
+    "enabled": true,
+    "pinDigests": true
+  },
+  "github-actions": {
+    "enabled": true
+  },
+  "pre-commit": {
+    "enabled": true
+  },
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security"],
+    "assignees": ["MarcelGaertner1234"],
+    "prPriority": 10
+  },
+  "prConcurrentLimit": 3,
+  "prCreation": "immediate",
+  "dependencyDashboard": true,
+  "dependencyDashboardTitle": "🔄 Renovate Dependency Dashboard",
+  "commitMessagePrefix": "chore(deps):",
+  "commitMessageAction": "update",
+  "commitMessageTopic": "{{depName}}",
+  "commitMessageExtra": "to {{newVersion}}",
+  "prTitle": "chore(deps): update {{depName}} to {{newVersion}}",
+  "prBodyTemplate": "This PR updates **{{depName}}** from `{{currentVersion}}` to `{{newVersion}}`.\n\n{{#if hasReleaseNotes}}\n### Release Notes\n\n{{releaseNotes}}\n{{/if}}\n\n---\n\n_This PR was created by [Renovate Bot](https://github.com/renovatebot/renovate)._"
+}
