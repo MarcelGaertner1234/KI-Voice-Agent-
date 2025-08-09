@@ -149,3 +149,37 @@ class OrganizationService:
             return {"allowed": False, "reason": "Monthly minutes limit exceeded"}
         
         return {"allowed": True}
+    
+    async def list_organizations(
+        self,
+        user_id: Optional[uuid.UUID] = None,
+        skip: int = 0,
+        limit: int = 100
+    ) -> List[Organization]:
+        """List organizations with optional filtering."""
+        statement = select(Organization).where(Organization.deleted_at == None)
+        
+        if user_id:
+            # Filter by user membership
+            from api.models.user import User
+            user = self.db.get(User, user_id)
+            if user and user.organization_id:
+                statement = statement.where(Organization.id == user.organization_id)
+            else:
+                return []
+        
+        statement = statement.offset(skip).limit(limit)
+        return list(self.db.exec(statement).all())
+    
+    async def delete_organization(self, org_id: uuid.UUID) -> bool:
+        """Soft delete organization."""
+        organization = await self.get_by_id(org_id)
+        if not organization:
+            return False
+        
+        organization.soft_delete()
+        self.db.add(organization)
+        self.db.commit()
+        
+        logger.info(f"Organization deleted: {organization.name}")
+        return True

@@ -1,10 +1,11 @@
 """Call management endpoints."""
 
-from typing import Any, List
+from typing import Any, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, WebSocket, WebSocketDisconnect
 from sqlmodel import Session
+import uuid
 
-from api.dependencies import get_current_active_user, get_organization_id
+from api.dependencies.auth import get_current_active_user, get_organization_id
 from api.utils.database import get_db
 from api.models.user import User
 from api.models.call import Call
@@ -20,7 +21,7 @@ websocket_manager = WebSocketManager()
 @router.post("/", response_model=CallResponse, status_code=status.HTTP_201_CREATED)
 async def create_call(
     call_data: CallCreate,
-    organization_id: str = Depends(get_organization_id),
+    organization_id: uuid.UUID = Depends(get_organization_id),
     db: Session = Depends(get_db)
 ) -> Any:
     """Initiate a new call."""
@@ -33,9 +34,9 @@ async def create_call(
 async def list_calls(
     skip: int = 0,
     limit: int = 100,
-    status: str = None,
-    agent_id: str = None,
-    organization_id: str = Depends(get_organization_id),
+    status: Optional[str] = None,
+    agent_id: Optional[uuid.UUID] = None,
+    organization_id: uuid.UUID = Depends(get_organization_id),
     db: Session = Depends(get_db)
 ) -> Any:
     """List all calls for the organization."""
@@ -52,8 +53,8 @@ async def list_calls(
 
 @router.get("/{call_id}", response_model=CallResponse)
 async def get_call(
-    call_id: str,
-    organization_id: str = Depends(get_organization_id),
+    call_id: uuid.UUID,
+    organization_id: uuid.UUID = Depends(get_organization_id),
     db: Session = Depends(get_db)
 ) -> Any:
     """Get specific call details."""
@@ -69,8 +70,8 @@ async def get_call(
 
 @router.post("/{call_id}/end", response_model=CallResponse)
 async def end_call(
-    call_id: str,
-    organization_id: str = Depends(get_organization_id),
+    call_id: uuid.UUID,
+    organization_id: uuid.UUID = Depends(get_organization_id),
     db: Session = Depends(get_db)
 ) -> Any:
     """End an active call."""
@@ -87,7 +88,7 @@ async def end_call(
 @router.websocket("/{call_id}/stream")
 async def call_stream(
     websocket: WebSocket,
-    call_id: str,
+    call_id: uuid.UUID,
     db: Session = Depends(get_db)
 ):
     """WebSocket endpoint for real-time audio streaming."""

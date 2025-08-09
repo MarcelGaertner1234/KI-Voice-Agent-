@@ -41,17 +41,25 @@ class Settings(BaseSettings):
     TWILIO_ACCOUNT_SID: Optional[str] = None
     TWILIO_AUTH_TOKEN: Optional[str] = None
     TWILIO_PHONE_NUMBER: Optional[str] = None
-    TWILIO_WEBHOOK_URL: Optional[str] = None
+    WEBHOOK_BASE_URL: Optional[str] = None
+    RECORD_CALLS: bool = False
+    ENABLE_MACHINE_DETECTION: bool = False
+    DEFAULT_AGENT_ID: Optional[str] = None
     
     # OpenAI
     OPENAI_API_KEY: Optional[str] = None
-    OPENAI_MODEL: str = "gpt-4-turbo-preview"
-    OPENAI_TEMPERATURE: float = 0.7
-    OPENAI_MAX_TOKENS: int = 500
+    GPT_MODEL: str = "gpt-4-turbo-preview"
+    GPT_TEMPERATURE: float = 0.7
+    GPT_MAX_TOKENS: int = 150
+    STT_MODEL: str = "whisper-1"
+    STT_TIMEOUT_MS: int = 30000
+    MAX_AUDIO_MB: int = 25
     
     # ElevenLabs
     ELEVENLABS_API_KEY: Optional[str] = None
-    ELEVENLABS_VOICE_ID: Optional[str] = None
+    ELEVENLABS_VOICE_ID: Optional[str] = "21m00Tcm4TlvDq8ikWAM"
+    TTS_MODEL: str = "eleven_multilingual_v2"
+    TTS_TIMEOUT_MS: int = 30000
     
     # Weaviate
     WEAVIATE_URL: str = "http://localhost:8080"

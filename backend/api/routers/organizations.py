@@ -3,8 +3,9 @@
 from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
+import uuid
 
-from api.dependencies import get_current_active_user, get_organization_id
+from api.dependencies.auth import get_current_active_user, get_organization_id
 from api.utils.database import get_db
 from api.models.user import User
 from api.models.organization import Organization
@@ -29,7 +30,7 @@ async def create_organization(
 
 @router.get("/me", response_model=OrganizationResponse)
 async def get_my_organization(
-    organization_id: str = Depends(get_organization_id),
+    organization_id: uuid.UUID = Depends(get_organization_id),
     db: Session = Depends(get_db)
 ) -> Any:
     """Get current user's organization."""
@@ -46,7 +47,7 @@ async def get_my_organization(
 @router.put("/me", response_model=OrganizationResponse)
 async def update_my_organization(
     org_update: OrganizationUpdate,
-    organization_id: str = Depends(get_organization_id),
+    organization_id: uuid.UUID = Depends(get_organization_id),
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ) -> Any:

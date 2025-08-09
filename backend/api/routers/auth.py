@@ -10,6 +10,8 @@ from api.config import get_settings
 from api.utils.database import get_db
 from api.schemas.request.auth import UserLogin, UserRegister
 from api.schemas.response.auth import Token, UserResponse
+from api.dependencies.auth import get_current_user
+from api.models.user import User
 from api.services.auth import AuthService
 from api.services.user import UserService
 
@@ -32,8 +34,14 @@ async def register(
             detail="User with this email already exists"
         )
     
-    # Create user
-    user = await user_service.create_user(user_data)
+    # Create user with organization if provided
+    user = await user_service.create_user_with_organization(
+        email=user_data.email,
+        password=user_data.password,
+        first_name=user_data.full_name.split()[0] if " " in user_data.full_name else user_data.full_name,
+        last_name=user_data.full_name.split()[1] if " " in user_data.full_name else "",
+        organization_name=user_data.organization_name
+    )
     return user
 
 
@@ -102,7 +110,17 @@ async def refresh_token(
 
 @router.post("/logout")
 async def logout(
-    # TODO: Implement token blacklisting with Redis
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
 ) -> Any:
     """Logout user."""
+    # TODO: Implement token blacklisting with Redis
     return {"message": "Successfully logged out"}
+
+
+@router.get("/me", response_model=UserResponse)
+async def get_me(
+    current_user: User = Depends(get_current_user)
+) -> Any:
+    """Get current user information."""
+    return current_user

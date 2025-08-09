@@ -3,8 +3,9 @@
 from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
+import uuid
 
-from api.dependencies import get_current_active_user, get_organization_id
+from api.dependencies.auth import get_current_active_user, get_organization_id
 from api.utils.database import get_db
 from api.models.user import User
 from api.models.agent import Agent
@@ -18,7 +19,7 @@ router = APIRouter()
 @router.post("/", response_model=AgentResponse, status_code=status.HTTP_201_CREATED)
 async def create_agent(
     agent_data: AgentCreate,
-    organization_id: str = Depends(get_organization_id),
+    organization_id: uuid.UUID = Depends(get_organization_id),
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ) -> Any:
@@ -32,7 +33,7 @@ async def create_agent(
 async def list_agents(
     skip: int = 0,
     limit: int = 100,
-    organization_id: str = Depends(get_organization_id),
+    organization_id: uuid.UUID = Depends(get_organization_id),
     db: Session = Depends(get_db)
 ) -> Any:
     """List all agents for the organization."""
@@ -47,8 +48,8 @@ async def list_agents(
 
 @router.get("/{agent_id}", response_model=AgentResponse)
 async def get_agent(
-    agent_id: str,
-    organization_id: str = Depends(get_organization_id),
+    agent_id: uuid.UUID,
+    organization_id: uuid.UUID = Depends(get_organization_id),
     db: Session = Depends(get_db)
 ) -> Any:
     """Get specific agent."""
@@ -64,9 +65,9 @@ async def get_agent(
 
 @router.put("/{agent_id}", response_model=AgentResponse)
 async def update_agent(
-    agent_id: str,
+    agent_id: uuid.UUID,
     agent_update: AgentUpdate,
-    organization_id: str = Depends(get_organization_id),
+    organization_id: uuid.UUID = Depends(get_organization_id),
     db: Session = Depends(get_db)
 ) -> Any:
     """Update agent."""
@@ -82,8 +83,8 @@ async def update_agent(
 
 @router.delete("/{agent_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_agent(
-    agent_id: str,
-    organization_id: str = Depends(get_organization_id),
+    agent_id: uuid.UUID,
+    organization_id: uuid.UUID = Depends(get_organization_id),
     db: Session = Depends(get_db)
 ) -> None:
     """Delete agent."""

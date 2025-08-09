@@ -88,3 +88,33 @@ class ConnectionManager:
 
 # Global WebSocket manager instance
 websocket_manager = ConnectionManager()
+
+
+class WebSocketManager:
+    """WebSocket manager for call handling."""
+    
+    def __init__(self):
+        self.manager = websocket_manager
+    
+    async def connect(self, websocket: WebSocket, call_id: str):
+        """Connect WebSocket to call."""
+        await self.manager.connect(websocket, call_id)
+    
+    def disconnect(self, call_id: str):
+        """Disconnect all WebSockets for a call."""
+        if call_id in self.manager.active_connections:
+            websockets = list(self.manager.active_connections[call_id])
+            for ws in websockets:
+                self.manager.disconnect(ws)
+    
+    async def send_bytes(self, call_id: str, data: bytes):
+        """Send audio bytes to call."""
+        await self.manager.send_bytes(call_id, data)
+    
+    async def send_json(self, call_id: str, data: dict):
+        """Send JSON data to call."""
+        await self.manager.send_json(call_id, data)
+    
+    async def broadcast_event(self, call_id: str, event_type: str, data: dict):
+        """Broadcast event to call."""
+        await self.manager.broadcast_event(call_id, event_type, data)

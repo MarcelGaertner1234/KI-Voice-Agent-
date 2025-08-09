@@ -3,8 +3,9 @@
 from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
+import uuid
 
-from api.dependencies import get_current_active_user, get_current_superuser
+from api.dependencies.auth import get_current_active_user, get_current_superuser
 from api.utils.database import get_db
 from api.models.user import User
 from api.schemas.response.user import UserResponse
@@ -49,7 +50,7 @@ async def list_users(
 
 @router.get("/{user_id}", response_model=UserResponse)
 async def get_user(
-    user_id: str,
+    user_id: uuid.UUID,
     current_user: User = Depends(get_current_superuser),
     db: Session = Depends(get_db)
 ) -> Any:
