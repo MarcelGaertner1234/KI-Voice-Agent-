@@ -1,8 +1,10 @@
 """WebSocket service."""
 
-from typing import Dict, Set
+from typing import Dict, Set, List, Optional, Any
 from fastapi import WebSocket
 import json
+import asyncio
+from datetime import datetime
 
 from api.utils.logger import setup_logger
 
@@ -17,6 +19,12 @@ class ConnectionManager:
         self.active_connections: Dict[str, Set[WebSocket]] = {}
         # Store websocket to call_id mapping
         self.websocket_to_call: Dict[WebSocket, str] = {}
+        # Store connection metadata
+        self.connection_metadata: Dict[str, Dict] = {}
+        # Dashboard connections
+        self.dashboard_connections: Dict[str, WebSocket] = {}
+        # Event subscriptions
+        self.event_subscriptions: Dict[str, Set[str]] = {}
     
     async def connect(self, websocket: WebSocket, call_id: str):
         """Accept and store WebSocket connection."""
@@ -84,6 +92,100 @@ class ConnectionManager:
             "type": event_type,
             "data": data
         })
+    
+    async def connect(self, websocket: WebSocket, connection_id: str, call_id: str):
+        """Connect WebSocket with connection ID."""
+        if call_id not in self.active_connections:
+            self.active_connections[call_id] = set()
+        
+        self.active_connections[call_id].add(websocket)
+        self.websocket_to_call[websocket] = call_id
+        self.connection_metadata[connection_id] = {
+            "call_id": call_id,
+            "websocket": websocket,
+            "connected_at": datetime.utcnow().isoformat()
+        }
+        
+        logger.info(f"WebSocket {connection_id} connected for call: {call_id}")
+    
+    def disconnect(self, connection_id: str):
+        """Disconnect by connection ID."""
+        if connection_id in self.connection_metadata:
+            metadata = self.connection_metadata[connection_id]
+            websocket = metadata["websocket"]
+            call_id = metadata["call_id"]
+            
+            if call_id in self.active_connections:
+                self.active_connections[call_id].discard(websocket)
+                if not self.active_connections[call_id]:
+                    del self.active_connections[call_id]
+            
+            if websocket in self.websocket_to_call:
+                del self.websocket_to_call[websocket]
+            
+            del self.connection_metadata[connection_id]
+            
+            if connection_id in self.event_subscriptions:
+                del self.event_subscriptions[connection_id]
+            
+            logger.info(f"WebSocket {connection_id} disconnected")
+    
+    async def connect_dashboard(self, websocket: WebSocket, connection_id: str, user: Optional[Any] = None):
+        """Connect dashboard WebSocket."""
+        self.dashboard_connections[connection_id] = websocket
+        self.connection_metadata[connection_id] = {
+            "type": "dashboard",
+            "websocket": websocket,
+            "user": user,
+            "connected_at": datetime.utcnow().isoformat()
+        }
+        logger.info(f"Dashboard WebSocket {connection_id} connected")
+    
+    def disconnect_dashboard(self, connection_id: str):
+        """Disconnect dashboard WebSocket."""
+        if connection_id in self.dashboard_connections:
+            del self.dashboard_connections[connection_id]
+        if connection_id in self.connection_metadata:
+            del self.connection_metadata[connection_id]
+        if connection_id in self.event_subscriptions:
+            del self.event_subscriptions[connection_id]
+        logger.info(f"Dashboard WebSocket {connection_id} disconnected")
+    
+    async def subscribe_to_events(self, connection_id: str, events: List[str]):
+        """Subscribe connection to specific events."""
+        if connection_id not in self.event_subscriptions:
+            self.event_subscriptions[connection_id] = set()
+        self.event_subscriptions[connection_id].update(events)
+        logger.info(f"Connection {connection_id} subscribed to events: {events}")
+    
+    async def broadcast_to_call(self, call_id: str, message: Dict):
+        """Broadcast message to all connections for a call."""
+        await self.send_json(call_id, message)
+    
+    async def broadcast_to_dashboards(self, message: Dict):
+        """Broadcast message to all dashboard connections."""
+        disconnected = []
+        for connection_id, websocket in self.dashboard_connections.items():
+            try:
+                await websocket.send_json(message)
+            except Exception as e:
+                logger.error(f"Error broadcasting to dashboard {connection_id}: {e}")
+                disconnected.append(connection_id)
+        
+        # Clean up disconnected dashboards
+        for connection_id in disconnected:
+            self.disconnect_dashboard(connection_id)
+    
+    async def send_to_connection(self, connection_id: str, message: Dict):
+        """Send message to specific connection."""
+        if connection_id in self.connection_metadata:
+            metadata = self.connection_metadata[connection_id]
+            websocket = metadata["websocket"]
+            try:
+                await websocket.send_json(message)
+            except Exception as e:
+                logger.error(f"Error sending to connection {connection_id}: {e}")
+                self.disconnect(connection_id)
 
 
 # Global WebSocket manager instance
